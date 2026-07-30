@@ -10,10 +10,26 @@ export const HOSTS = {
   ZT: "apphwhq.longhuvip.com", // 涨停原因题材
 }
 
-// 中国时区日期（Workers 内部是 UTC，需手动 +8）
+// 中国时区最近交易日（Workers 内部是 UTC，需手动 +8）
+// 交易时段内用当天；盘后(≥15:00)用当天；盘前/周末回退到最近工作日
 export function cnDate() {
   const d = new Date()
   const sh = new Date(d.getTime() + (d.getTimezoneOffset() + 480) * 60000)
+  const h = sh.getUTCHours()
+  const m = sh.getUTCMinutes()
+  const t = h * 60 + m
+  const wd = sh.getUTCDay()
+
+  // 周末或盘前 → 回退到最近交易日
+  const needRollback = wd === 0 || wd === 6 || t < 555
+  // 盘后(≥15:00 工作日)数据已出，不需要回退
+  if (!needRollback) return sh.toISOString().slice(0, 10)
+
+  // 往前找最近一个工作日（跳过周六日）
+  sh.setUTCDate(sh.getUTCDate() - 1)
+  while (sh.getUTCDay() === 0 || sh.getUTCDay() === 6) {
+    sh.setUTCDate(sh.getUTCDate() - 1)
+  }
   return sh.toISOString().slice(0, 10)
 }
 
