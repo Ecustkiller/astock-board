@@ -1,0 +1,13 @@
+{
+  "name": "A股题材 · 涨停看板",
+  "short_name": "题材看板",
+  "description": "实时 A股题材榜、涨停原因、连板梯队与题材分析",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0071e3",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ]
+}
