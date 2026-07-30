@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react"
 import { fetchConcept, fetchZt } from "./api"
 import Board from "./components/Board"
 import ZtPanel from "./components/ZtPanel"
+import LianbanPanel from "./components/LianbanPanel"
 import PlateDetail from "./components/PlateDetail"
 
 const TYPES = [
@@ -11,6 +12,7 @@ const TYPES = [
 ]
 
 export default function App() {
+  const [view, setView] = useState<"theme" | "lianban">("theme")
   const [zsType, setZsType] = useState("7")
   const [concept, setConcept] = useState<any[]>([])
   const [zt, setZt] = useState<any>(null)
@@ -55,20 +57,40 @@ export default function App() {
             {loading && " · 刷新中"}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex rounded-lg overflow-hidden border border-edge">
-            {TYPES.map((t) => (
-              <button
-                key={t.k}
-                onClick={() => setZsType(t.k)}
-                className={`px-3 py-1 text-sm ${
-                  zsType === t.k ? "bg-blue-600 text-white" : "bg-panel text-gray-300"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
+            <button
+              onClick={() => setView("theme")}
+              className={`px-3 py-1 text-sm ${
+                view === "theme" ? "bg-blue-600 text-white" : "bg-panel text-gray-300"
+              }`}
+            >
+              题材榜
+            </button>
+            <button
+              onClick={() => setView("lianban")}
+              className={`px-3 py-1 text-sm ${
+                view === "lianban" ? "bg-blue-600 text-white" : "bg-panel text-gray-300"
+              }`}
+            >
+              连板梯队
+            </button>
           </div>
+          {view === "theme" && (
+            <div className="flex rounded-lg overflow-hidden border border-edge">
+              {TYPES.map((t) => (
+                <button
+                  key={t.k}
+                  onClick={() => setZsType(t.k)}
+                  className={`px-3 py-1 text-sm ${
+                    zsType === t.k ? "bg-blue-600 text-white" : "bg-panel text-gray-300"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
           <label className="flex items-center gap-1 text-sm text-gray-400">
             <input
               type="checkbox"
@@ -86,21 +108,27 @@ export default function App() {
         </div>
       </header>
 
-      <main className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <section>
-          <h2 className="text-sm text-gray-400 mb-2">
-            题材榜（{TYPES.find((t) => t.k === zsType)?.label}）
-          </h2>
-          <Board
-            data={concept}
-            onSelect={(code, name) => setSelected({ code, name })}
-            selected={selected?.code}
-          />
-        </section>
-        <section>
-          <ZtPanel data={zt} />
-        </section>
-      </main>
+      {view === "theme" ? (
+        <main className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <section>
+            <h2 className="text-sm text-gray-400 mb-2">
+              题材榜（{TYPES.find((t) => t.k === zsType)?.label}）
+            </h2>
+            <Board
+              data={concept}
+              onSelect={(code, name) => setSelected({ code, name })}
+              selected={selected?.code}
+            />
+          </section>
+          <section>
+            <ZtPanel data={zt} />
+          </section>
+        </main>
+      ) : (
+        <main>
+          <LianbanPanel data={zt} />
+        </main>
+      )}
 
       {selected && (
         <PlateDetail

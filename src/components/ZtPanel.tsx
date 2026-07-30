@@ -1,19 +1,6 @@
 import { useState, useEffect } from "react"
 import { fetchQuote, pct, chgColor } from "../api"
 
-// 解析连板字段：'4连板'->4，'5天4板'->4(取板数)，'首板'->1
-function parseBoard(s: any): number {
-  if (!s) return 1
-  const str = String(s)
-  if (str.includes("首板")) return 1
-  const m1 = str.match(/(\d+)连板/)
-  if (m1) return parseInt(m1[1], 10)
-  const m2 = str.match(/(\d+)天(\d+)板/)
-  if (m2) return parseInt(m2[2], 10)
-  const m3 = str.match(/\d+/)
-  return m3 ? parseInt(m3[0], 10) : 1
-}
-
 // 单个涨停题材行：点击展开个股 + 实时行情
 function ThemeRow({ theme }: { theme: any }) {
   const [open, setOpen] = useState(false)
@@ -67,17 +54,8 @@ export default function ZtPanel({ data }: { data: any }) {
 
   const nums = data.nums || {}
   const themes = [...data.list].sort(
-    (a, b) => (b.StockList?.length || 0) - (a.StockList?.length || 0)
+    (a: any, b: any) => (b.StockList?.length || 0) - (a.StockList?.length || 0)
   )
-  const all = data.list.flatMap((t: any) => t.StockList || [])
-  const byBoard: Record<number, string[]> = {}
-  for (const s of all) {
-    const bd = parseBoard(s[9])
-    ;(byBoard[bd] = byBoard[bd] || []).push(s[1])
-  }
-  const boards = Object.keys(byBoard)
-    .map(Number)
-    .sort((a, b) => b - a)
 
   return (
     <div className="space-y-4">
@@ -101,25 +79,6 @@ export default function ZtPanel({ data }: { data: any }) {
           {themes.slice(0, 25).map((t: any, i: number) => (
             <ThemeRow key={i} theme={t} />
           ))}
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-sm text-gray-400 mb-2">连板梯队</h3>
-        <div className="space-y-1">
-          {boards.map((b) => (
-            <div key={b} className="flex gap-2 text-sm">
-              <span className="text-orange-400 whitespace-nowrap w-14">
-                {b === 1 ? "首板" : `${b}连板`}
-              </span>
-              <span className="text-gray-300 truncate">
-                {(byBoard[b] || []).join("、")}
-              </span>
-            </div>
-          ))}
-          {!boards.length && (
-            <div className="text-gray-600 text-xs">暂无连板数据</div>
-          )}
         </div>
       </div>
     </div>
