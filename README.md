@@ -4,6 +4,8 @@
 
 > 为什么放 CF：纯前端 SPA 由 CF Pages 全球托管，API 由 Pages Functions（Workers 运行时）代理并缓存到离用户最近的边缘节点——零服务器运维、自带 HTTPS、自动 CDN 加速。公开行情数据不涉及版权分发，完全符合 Cloudflare 可接受使用政策（对比影视聚合类项目更安全）。
 
+> ⚠️ **部署必读（KV 绑定）**：Cloudflare Pages 控制台 / Git 联动部署的 KV 通过**控制台 UI 绑定**提供（项目 Settings → Variables and Secrets → 添加 KV 绑定，变量名必须叫 `KPL_CACHE`），**不要**在 `wrangler.toml` 里写 `[[kv_namespaces]]` 占位符——构建系统会读到非法 ID 报 `Error 8000022: Invalid KV namespace ID` 导致发布失败。仓库内的 `wrangler.toml` 已移除该段。KV 未绑时代码会自动降级（直连上游、不缓存），页面照常可用。
+
 ## 架构
 
 ```
