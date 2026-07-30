@@ -2,9 +2,12 @@ name = "astock-board"
 pages_build_output_dir = "dist"
 compatibility_date = "2024-09-23"
 
-# Pages Functions 使用的 KV 命名空间。
-# 部署前请先创建：wrangler kv namespace create astock_cache
-# 然后把输出的 id 填到下面（替换 REPLACE_WITH_YOUR_KV_NAMESPACE_ID）。
-[[kv_namespaces]]
-binding = "KPL_CACHE"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+# KV 绑定说明（重要）：
+# 生产环境（Cloudflare Pages 控制台 / Git 联动部署）的 KV 通过控制台绑定提供，
+# 变量名必须叫 KPL_CACHE（Pages 项目 Settings → Variables and Secrets → 添加 KV 绑定）。
+# 此处不要再声明 kv_namespaces，否则会被构建系统读取到占位符而报错。
+#
+# 本地开发（wrangler dev）如需 KV 缓存，取消下面注释并填入真实 namespace id（hex 字符串）：
+# [[kv_namespaces]]
+# binding = "KPL_CACHE"
+# id = "你的真实KV命名空间ID"
