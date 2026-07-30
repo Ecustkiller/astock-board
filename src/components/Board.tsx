@@ -29,27 +29,31 @@ export default function Board({
     return <div className="text-sub text-sm p-4">暂无数据</div>
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
       {data.map((it) => (
         <button
           key={it.code}
           onClick={() => onSelect(it.code, it.name)}
           onMouseEnter={() => prefetchPlate(it.code)}
-          className={`text-left rounded-lg border p-3 transition ${
+          className={`text-left rounded-lg border p-2.5 sm:p-3 transition ${
             selected === it.code
               ? "border-blue bg-panel2"
               : "border-edge bg-panel hover:border-sub"
           }`}
         >
-          <div className="flex justify-between items-baseline">
+          <div className="flex justify-between items-baseline gap-1">
             <span className="font-medium truncate">{it.name}</span>
-            <span className={`text-sm ${chgColor(it.chg)}`}>{pct(it.chg)}</span>
+            <span className={`text-sm tabular-nums ${chgColor(it.chg)}`}>
+              {pct(it.chg)}
+            </span>
           </div>
-          <div className="text-xs text-sub mt-1">
-            强度 {it.strength} · {it.code}
-          </div>
-          <div className="mt-2">
-            <ChgBar chg={it.chg} />
+          <div className="flex items-center gap-2 mt-1.5">
+            <div className="flex-1 min-w-0">
+              <ChgBar chg={it.chg} />
+            </div>
+            <span className="text-[11px] text-sub tabular-nums shrink-0">
+              强度{it.strength}
+            </span>
           </div>
         </button>
       ))}

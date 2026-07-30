@@ -67,25 +67,25 @@ export default function LianbanPanel({ data }: { data: any }) {
                   <span className="text-[15px] text-ink">{b === 1 ? "首板" : `${b}连板`}</span>
                   <span className="text-[12px] text-sub">{byBoard[b].length} 只</span>
                 </div>
-                <div className="text-[14px] leading-[1.7] text-ink">
+                <div className="flex flex-wrap gap-1.5">
                   {byBoard[b].map((s: any, i: number) => {
                     const q = quotes[s[0]]
                     return (
-                      <span key={i}>
-                        {i > 0 && <span className="text-sub"> / </span>}
-                        <button
-                          onClick={() => navigator.clipboard?.writeText(s[0])}
-                          className="hover:text-blue transition-colors"
-                          title={`${s[1]} ${s[0]}`}
-                        >
-                          {s[1]}
-                          {q ? (
-                            <span className={`ml-0.5 ${chgColor(q.chg)}`}>{pct(q.chg)}</span>
-                          ) : s[16] ? (
-                            <span className="text-sub text-[12px] ml-0.5">{s[16]}</span>
-                          ) : null}
-                        </button>
-                      </span>
+                      <button
+                        key={i}
+                        onClick={() => navigator.clipboard?.writeText(s[0])}
+                        className="px-2 py-0.5 rounded-md bg-panel2 border border-edge text-[14px] hover:border-blue transition-colors"
+                        title={`${s[1]} ${s[0]}`}
+                      >
+                        <span className="text-ink">{s[1]}</span>
+                        {q ? (
+                          <span className={`ml-1 text-[12px] tabular-nums ${chgColor(q.chg)}`}>
+                            {pct(q.chg)}
+                          </span>
+                        ) : s[16] ? (
+                          <span className="text-sub text-[12px] ml-1">{s[16]}</span>
+                        ) : null}
+                      </button>
                     )
                   })}
                 </div>

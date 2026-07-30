@@ -30,7 +30,7 @@ export default function IndexTicker() {
   }, [])
 
   return (
-    <div className="flex flex-wrap gap-x-5 gap-y-1 items-center text-sm">
+    <div className="flex gap-x-5 items-center text-sm overflow-x-auto no-scrollbar whitespace-nowrap">
       {INDICES.map((idx) => {
         const key = idx.code.replace(/^(sh|sz|bj)/, "")
         const q = data[key]
@@ -39,7 +39,7 @@ export default function IndexTicker() {
           chg == null ? "text-sub" : chg >= 0 ? "text-up" : "text-down"
         const sign = chg == null ? "" : chg >= 0 ? "+" : ""
         return (
-          <div key={idx.code} className="flex items-baseline gap-1.5">
+          <div key={idx.code} className="flex items-baseline gap-1.5 shrink-0">
             <span className="text-sub">{idx.name}</span>
             <span className="text-ink tabular-nums">
               {q?.price != null ? q.price.toFixed(2) : "—"}

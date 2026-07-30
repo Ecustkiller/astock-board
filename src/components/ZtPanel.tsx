@@ -28,11 +28,15 @@ function ThemeRow({ theme }: { theme: any }) {
       {open && (
         <div className="px-2 pb-2 space-y-1">
           {stocks.slice(0, 20).map((s: any, i: number) => (
-            <div key={i} className="flex justify-between text-xs">
-              <span className="text-ink">
+            <div key={i} className="flex justify-between items-center gap-2 text-xs">
+              <span className="text-ink truncate min-w-0">
                 {s[1]} <span className="text-sub">{s[0]}</span>
               </span>
-              <span className={chgColor(quotes[s[0]]?.chg ?? 0)}>
+              <span
+                className={`tabular-nums shrink-0 ${chgColor(
+                  quotes[s[0]]?.chg ?? 0
+                )}`}
+              >
                 {quotes[s[0]] ? pct(quotes[s[0]].chg) : "—"}
                 {s[16] ? ` · ${s[16]}` : ""}
               </span>
