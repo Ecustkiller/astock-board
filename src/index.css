@@ -76,3 +76,29 @@ a:focus-visible {
 .animate-fadein {
   animation: fadeIn 0.28s ease-out both;
 }
+
+/* 分析表格（苹果极简风） */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.tbl th,
+.tbl td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--edge);
+  text-align: left;
+  white-space: nowrap;
+}
+.tbl th {
+  color: var(--sub);
+  font-weight: 500;
+  background: var(--panel2);
+}
+.tbl tbody tr:hover {
+  background: var(--panel2);
+}
+.tbl tbody tr:last-child td {
+  border-bottom: none;
+}

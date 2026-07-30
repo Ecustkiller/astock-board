@@ -5,6 +5,7 @@ import ZtPanel from "./components/ZtPanel"
 import LianbanPanel from "./components/LianbanPanel"
 import PlateDetail from "./components/PlateDetail"
 import IndexTicker from "./components/IndexTicker"
+import AnalysisPanel from "./components/AnalysisPanel"
 
 const TYPES = [
   { k: "7", label: "概念" },
@@ -13,7 +14,7 @@ const TYPES = [
 ]
 
 export default function App() {
-  const [view, setView] = useState<"theme" | "lianban">("theme")
+  const [view, setView] = useState<"theme" | "lianban" | "analysis">("theme")
   const [zsType, setZsType] = useState("7")
   const [concept, setConcept] = useState<any[]>([])
   const [zt, setZt] = useState<any>(null)
@@ -92,6 +93,14 @@ export default function App() {
                 }`}
               >
                 连板梯队
+              </button>
+              <button
+                onClick={() => setView("analysis")}
+                className={`px-3 py-1 text-sm ${
+                  view === "analysis" ? "bg-blue text-white" : "bg-panel2 text-sub"
+                }`}
+              >
+                题材分析
               </button>
             </div>
             {view === "theme" && (
@@ -173,9 +182,13 @@ export default function App() {
             </section>
           </main>
         </>
-      ) : (
+      ) : view === "lianban" ? (
         <main>
           <LianbanPanel data={zt} />
+        </main>
+      ) : (
+        <main>
+          <AnalysisPanel concept={concept} zt={zt} />
         </main>
       )}
 
