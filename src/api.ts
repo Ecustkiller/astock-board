@@ -21,11 +21,11 @@ export async function fetchPlate(code: string): Promise<any> {
   return r.json()
 }
 
-// 涨跌幅格式化：开盘啦/腾讯返回的数值，<1 视为小数比例需×100
+// 涨跌幅格式化：本项目所有 chg 源（开盘啦概念/涨停、腾讯行情 f[32]）均为「百分比数值」，
+// 直接格式化即可，切勿再 ×100（否则指数 -0.62% 会被算成 -62%）。
 export function pct(chg: number): string {
   if (chg == null || isNaN(chg)) return "—"
-  const v = Math.abs(chg) < 1 ? chg * 100 : chg
-  return (v >= 0 ? "+" : "") + v.toFixed(2) + "%"
+  return (chg >= 0 ? "+" : "") + chg.toFixed(2) + "%"
 }
 
 export function chgColor(chg: number): string {

@@ -5,7 +5,10 @@ import { json } from "./_lib.js"
 const QT = "web.sqt.gtimg.cn"
 
 function fmt(code) {
-  const c = String(code).padStart(6, "0")
+  const s = String(code).trim().toLowerCase()
+  // 已带交易所前缀（指数/自传代码）直接透传，避免 sh000001 被误判为 sz
+  if (s.startsWith("sh") || s.startsWith("sz") || s.startsWith("bj")) return s
+  const c = s.padStart(6, "0")
   if ("69".includes(c[0])) return "sh" + c
   if ("0123".includes(c[0])) return "sz" + c
   return "bj" + c

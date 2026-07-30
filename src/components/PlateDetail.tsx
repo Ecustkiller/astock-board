@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { fetchPlate, fetchQuote, pct, chgColor } from "../api"
+import { fetchPlate } from "../api"
 import Kline from "./Kline"
 
 // 板块钻取：板块整体K线 + 细分概念列表（点击细分概念继续钻取）
@@ -83,33 +83,17 @@ export default function PlateDetail({
           </>
         )}
 
-        <DrillQuotes code={target.code} />
+        <DrillQuotesHint />
       </div>
     </div>
   )
 }
 
-// 细分概念成分股实时行情（开盘啦子板块StockList在 plate.sons 不含成分股，这里用涨停原因题材榜的个股兜底）
-function DrillQuotes({ code }: { code: string }) {
-  const [stocks, setStocks] = useState<any[]>([])
-  const [quotes, setQuotes] = useState<Record<string, any>>({})
-  useEffect(() => {
-    // 子板块成分股需另接口；此处通过 /api/zt 全局个股无法精确归属，留作扩展点
-    setStocks([])
-    setQuotes({})
-  }, [code])
-  if (!stocks.length) return null
+// 开盘啦概念板块不提供个股成分股列表，成分股实时行情请在「涨停原因题材榜」展开查看。
+function DrillQuotesHint() {
   return (
-    <div className="mt-4">
-      <h3 className="text-sm text-sub mb-2">成分股</h3>
-      {stocks.map((s) => (
-        <div key={s[0]} className="flex justify-between text-sm py-1">
-          <span>{s[1]}</span>
-          <span className={chgColor(quotes[s[0]]?.chg ?? 0)}>
-            {pct(quotes[s[0]]?.chg ?? 0)}
-          </span>
-        </div>
-      ))}
+    <div className="mt-4 text-xs text-sub border-t border-edge pt-3">
+      提示：概念板块成分股实时行情可在右侧「涨停原因题材榜」点开题材查看。
     </div>
   )
 }

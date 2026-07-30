@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { fetchConcept, fetchZt } from "./api"
 import Board from "./components/Board"
 import ZtPanel from "./components/ZtPanel"
 import LianbanPanel from "./components/LianbanPanel"
 import PlateDetail from "./components/PlateDetail"
+import IndexTicker from "./components/IndexTicker"
 
 const TYPES = [
   { k: "7", label: "概念" },
@@ -20,6 +21,8 @@ export default function App() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [auto, setAuto] = useState(true)
   const [selected, setSelected] = useState<{ code: string; name: string } | null>(null)
+  const [search, setSearch] = useState("")
+  const [sortBy, setSortBy] = useState<"strength" | "chg">("strength")
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -45,85 +48,129 @@ export default function App() {
     return () => clearInterval(id)
   }, [auto, load])
 
+  const kw = search.trim()
+  const displayConcept = useMemo(() => {
+    let arr = concept
+    if (kw) arr = arr.filter((it) => (it.name || "").includes(kw))
+    arr = [...arr].sort((a, b) =>
+      sortBy === "chg"
+        ? (b.chg ?? 0) - (a.chg ?? 0)
+        : (b.strength ?? 0) - (a.strength ?? 0)
+    )
+    return arr
+  }, [concept, kw, sortBy])
+
   return (
     <div className="min-h-screen max-w-6xl mx-auto px-3 py-4">
-      <header className="flex flex-wrap items-center justify-between gap-2 mb-4 sticky top-0 backdrop-blur z-10 py-2 -mx-3 px-3" style={{ background: "color-mix(in srgb, var(--bg) 90%, transparent)" }}>
-        <div>
-          <h1 className="text-lg font-semibold text-ink">A股题材 · 涨停看板</h1>
-          <div className="text-xs text-sub">
-            {lastUpdate
-              ? `更新于 ${lastUpdate.toLocaleTimeString("zh-CN")}`
-              : "加载中…"}
-            {loading && " · 刷新中"}
-          </div>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex rounded-lg overflow-hidden border border-edge">
-            <button
-              onClick={() => setView("theme")}
-              className={`px-3 py-1 text-sm ${
-                view === "theme" ? "bg-blue text-white" : "bg-panel2 text-sub"
-              }`}
-            >
-              题材榜
-            </button>
-            <button
-              onClick={() => setView("lianban")}
-              className={`px-3 py-1 text-sm ${
-                view === "lianban" ? "bg-blue text-white" : "bg-panel2 text-sub"
-              }`}
-            >
-              连板梯队
-            </button>
-          </div>
-          {view === "theme" && (
-            <div className="flex rounded-lg overflow-hidden border border-edge">
-              {TYPES.map((t) => (
-                <button
-                  key={t.k}
-                  onClick={() => setZsType(t.k)}
-                  className={`px-3 py-1 text-sm ${
-                    zsType === t.k ? "bg-blue text-white" : "bg-panel2 text-sub"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
+      <header className="sticky top-0 backdrop-blur z-10 py-2 -mx-3 px-3 mb-4" style={{ background: "color-mix(in srgb, var(--bg) 90%, transparent)" }}>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div>
+            <h1 className="text-lg font-semibold text-ink">A股题材 · 涨停看板</h1>
+            <div className="text-xs text-sub">
+              {lastUpdate
+                ? `更新于 ${lastUpdate.toLocaleTimeString("zh-CN")}`
+                : "加载中…"}
+              {loading && " · 刷新中"}
             </div>
-          )}
-          <label className="flex items-center gap-1 text-sm text-sub">
-            <input
-              type="checkbox"
-              checked={auto}
-              onChange={(e) => setAuto(e.target.checked)}
-            />
-            自动
-          </label>
-          <button
-            onClick={load}
-            className="px-3 py-1 text-sm rounded-lg bg-panel2 border border-edge"
-          >
-            刷新
-          </button>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex rounded-lg overflow-hidden border border-edge">
+              <button
+                onClick={() => setView("theme")}
+                className={`px-3 py-1 text-sm ${
+                  view === "theme" ? "bg-blue text-white" : "bg-panel2 text-sub"
+                }`}
+              >
+                题材榜
+              </button>
+              <button
+                onClick={() => setView("lianban")}
+                className={`px-3 py-1 text-sm ${
+                  view === "lianban" ? "bg-blue text-white" : "bg-panel2 text-sub"
+                }`}
+              >
+                连板梯队
+              </button>
+            </div>
+            {view === "theme" && (
+              <div className="flex rounded-lg overflow-hidden border border-edge">
+                {TYPES.map((t) => (
+                  <button
+                    key={t.k}
+                    onClick={() => setZsType(t.k)}
+                    className={`px-3 py-1 text-sm ${
+                      zsType === t.k ? "bg-blue text-white" : "bg-panel2 text-sub"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            <label className="flex items-center gap-1 text-sm text-sub">
+              <input
+                type="checkbox"
+                checked={auto}
+                onChange={(e) => setAuto(e.target.checked)}
+              />
+              自动
+            </label>
+            <button
+              onClick={load}
+              className="px-3 py-1 text-sm rounded-lg bg-panel2 border border-edge"
+            >
+              刷新
+            </button>
+          </div>
         </div>
+        <IndexTicker />
       </header>
 
       {view === "theme" ? (
-        <main className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <section>
-            <h2 className="text-sm text-sub mb-2">
-              题材榜（{TYPES.find((t) => t.k === zsType)?.label}）
-            </h2>
-            <Board
-              data={concept}
-              onSelect={(code, name) => setSelected({ code, name })}
-              selected={selected?.code}
+        <>
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="搜索题材名称…"
+              className="px-3 py-1.5 text-sm rounded-lg bg-panel2 border border-edge text-ink placeholder:text-sub outline-none focus:border-blue w-44"
             />
-          </section>
-          <section>
-            <ZtPanel data={zt} />
-          </section>
-        </main>
+            <div className="flex rounded-lg overflow-hidden border border-edge text-sm">
+              <button
+                onClick={() => setSortBy("strength")}
+                className={`px-3 py-1 ${
+                  sortBy === "strength" ? "bg-blue text-white" : "bg-panel2 text-sub"
+                }`}
+              >
+                按强度
+              </button>
+              <button
+                onClick={() => setSortBy("chg")}
+                className={`px-3 py-1 ${
+                  sortBy === "chg" ? "bg-blue text-white" : "bg-panel2 text-sub"
+                }`}
+              >
+                按涨幅
+              </button>
+            </div>
+            <span className="text-xs text-sub">共 {displayConcept.length} 个题材</span>
+          </div>
+          <main className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <section>
+              <h2 className="text-sm text-sub mb-2">
+                题材榜（{TYPES.find((t) => t.k === zsType)?.label}）
+              </h2>
+              <Board
+                data={displayConcept}
+                onSelect={(code, name) => setSelected({ code, name })}
+                selected={selected?.code}
+              />
+            </section>
+            <section>
+              <ZtPanel data={zt} />
+            </section>
+          </main>
+        </>
       ) : (
         <main>
           <LianbanPanel data={zt} />
