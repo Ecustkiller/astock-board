@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
-import { fetchConcept, fetchZt } from "./api"
+import { fetchConcept, fetchZt, prefetchPlates } from "./api"
 import Board from "./components/Board"
 import ZtPanel from "./components/ZtPanel"
 import LianbanPanel from "./components/LianbanPanel"
@@ -31,6 +31,8 @@ export default function App() {
       setConcept(c)
       setZt(z)
       setLastUpdate(new Date())
+      // 题材榜加载后静默预热前 N 个题材钻取详情，点击时零延迟
+      prefetchPlates(c.map((x: any) => x.code))
     } catch (e) {
       console.error(e)
     } finally {

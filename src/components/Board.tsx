@@ -1,4 +1,4 @@
-import { pct, chgColor } from "../api"
+import { pct, chgColor, prefetchPlate } from "../api"
 
 // 卡片上的「当日涨跌条」：与卡片显示的当日涨跌幅严格对应（红涨绿跌，长度∝幅度）。
 // 不再用 130 日 K 线当卡片缩略图——那是不同时间维度，视觉上和当日%对不上。
@@ -34,6 +34,7 @@ export default function Board({
         <button
           key={it.code}
           onClick={() => onSelect(it.code, it.name)}
+          onMouseEnter={() => prefetchPlate(it.code)}
           className={`text-left rounded-lg border p-3 transition ${
             selected === it.code
               ? "border-blue bg-panel2"
