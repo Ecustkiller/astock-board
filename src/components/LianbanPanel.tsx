@@ -49,42 +49,52 @@ export default function LianbanPanel({ data }: { data: any }) {
   }, [data])
 
   return (
-    <div className="space-y-3">
-      <div className="text-xs text-gray-500">
-        连板梯队按连板天数分组 · 显示实时涨跌（腾讯行情）· 点击个股复制代码
+    <div className="space-y-4">
+      <div className="text-xs text-sub">
+        连板梯队 · 按连板天数排列 · 点击个股复制代码
       </div>
-      {boards.map((b) => (
-        <div key={b} className="rounded-lg border border-edge bg-panel p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-orange-400 font-bold text-sm w-16">
-              {b === 1 ? "首板" : `${b}连板`}
-            </span>
-            <span className="text-gray-500 text-xs">{byBoard[b].length} 只</span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {byBoard[b].map((s: any, i: number) => {
-              const q = quotes[s[0]]
-              return (
-                <button
-                  key={i}
-                  onClick={() => navigator.clipboard?.writeText(s[0])}
-                  className="flex items-center gap-1 px-2 py-1 rounded bg-panel2 border border-edge text-xs hover:border-blue-500"
-                  title={`${s[1]} ${s[0]}`}
-                >
-                  <span className="text-gray-200">{s[1]}</span>
-                  {q ? (
-                    <span className={chgColor(q.chg)}>{pct(q.chg)}</span>
-                  ) : (
-                    <span className="text-gray-600">{s[16] || ""}</span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
+
+      {boards.length ? (
+        <div className="relative pl-5">
+          {/* 一根蓝色竖线贯穿整列 */}
+          <div className="absolute left-[27px] top-2 bottom-2 w-[2px] bg-blue/30 rounded-full" />
+          {boards.map((b) => (
+            <div key={b} className="relative flex gap-3 pb-5 last:pb-0">
+              {/* 节点：蓝色实心圆点 + 背景色外圈（挖空感） */}
+              <div className="relative z-10 mt-1 w-4 h-4 rounded-full bg-blue ring-4 ring-[color:var(--bg)] flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-[15px] text-ink">{b === 1 ? "首板" : `${b}连板`}</span>
+                  <span className="text-[12px] text-sub">{byBoard[b].length} 只</span>
+                </div>
+                <div className="text-[14px] leading-[1.7] text-ink">
+                  {byBoard[b].map((s: any, i: number) => {
+                    const q = quotes[s[0]]
+                    return (
+                      <span key={i}>
+                        {i > 0 && <span className="text-sub"> / </span>}
+                        <button
+                          onClick={() => navigator.clipboard?.writeText(s[0])}
+                          className="hover:text-blue transition-colors"
+                          title={`${s[1]} ${s[0]}`}
+                        >
+                          {s[1]}
+                          {q ? (
+                            <span className={`ml-0.5 ${chgColor(q.chg)}`}>{pct(q.chg)}</span>
+                          ) : s[16] ? (
+                            <span className="text-sub text-[12px] ml-0.5">{s[16]}</span>
+                          ) : null}
+                        </button>
+                      </span>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-      {!boards.length && (
-        <div className="text-gray-600 text-sm p-4">暂无连板数据（非交易时段可能为空）</div>
+      ) : (
+        <div className="text-sub text-sm p-4">暂无连板数据（非交易时段可能为空）</div>
       )}
     </div>
   )

@@ -29,6 +29,6 @@ export function pct(chg: number): string {
 }
 
 export function chgColor(chg: number): string {
-  if (chg == null || isNaN(chg)) return "text-gray-400"
+  if (chg == null || isNaN(chg)) return "text-sub"
   return chg >= 0 ? "text-up" : "text-down"
 }

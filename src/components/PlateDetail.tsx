@@ -42,22 +42,22 @@ export default function PlateDetail({
       >
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg font-semibold">{target.name}</h2>
-          <button onClick={onClose} className="text-gray-400 text-2xl leading-none">
+          <button onClick={onClose} className="text-sub text-2xl leading-none">
             ×
           </button>
         </div>
 
-        {loading && <div className="text-gray-500">加载中…</div>}
+        {loading && <div className="text-sub">加载中…</div>}
 
         {plate && (
           <>
             <div className="mb-4">
-              <h3 className="text-sm text-gray-400 mb-2">板块K线（近130日）</h3>
+              <h3 className="text-sm text-sub mb-2">板块K线（近130日）</h3>
               <Kline data={plate.kline} />
             </div>
 
             <div>
-              <h3 className="text-sm text-gray-400 mb-2">
+              <h3 className="text-sm text-sub mb-2">
                 细分概念（{plate.sons.length}）
               </h3>
               <div className="space-y-1">
@@ -72,10 +72,10 @@ export default function PlateDetail({
                         setLoading(false)
                       })
                     }}
-                    className="w-full flex justify-between text-sm border-b border-edge py-1.5 hover:text-blue-400"
+                    className="w-full flex justify-between text-sm border-b border-edge py-1.5 hover:text-blue"
                   >
                     <span>{s.name}</span>
-                    <span className="text-gray-500">{s.strength}</span>
+                    <span className="text-sub">{s.strength}</span>
                   </button>
                 ))}
               </div>
@@ -101,7 +101,7 @@ function DrillQuotes({ code }: { code: string }) {
   if (!stocks.length) return null
   return (
     <div className="mt-4">
-      <h3 className="text-sm text-gray-400 mb-2">成分股</h3>
+      <h3 className="text-sm text-sub mb-2">成分股</h3>
       {stocks.map((s) => (
         <div key={s[0]} className="flex justify-between text-sm py-1">
           <span>{s[1]}</span>

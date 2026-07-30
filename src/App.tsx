@@ -47,10 +47,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen max-w-6xl mx-auto px-3 py-4">
-      <header className="flex flex-wrap items-center justify-between gap-2 mb-4 sticky top-0 bg-[#0b0e14]/90 backdrop-blur z-10 py-2 -mx-3 px-3">
+      <header className="flex flex-wrap items-center justify-between gap-2 mb-4 sticky top-0 backdrop-blur z-10 py-2 -mx-3 px-3" style={{ background: "color-mix(in srgb, var(--bg) 90%, transparent)" }}>
         <div>
-          <h1 className="text-lg font-bold">A股题材 · 涨停看板</h1>
-          <div className="text-xs text-gray-500">
+          <h1 className="text-lg font-semibold text-ink">A股题材 · 涨停看板</h1>
+          <div className="text-xs text-sub">
             {lastUpdate
               ? `更新于 ${lastUpdate.toLocaleTimeString("zh-CN")}`
               : "加载中…"}
@@ -62,7 +62,7 @@ export default function App() {
             <button
               onClick={() => setView("theme")}
               className={`px-3 py-1 text-sm ${
-                view === "theme" ? "bg-blue-600 text-white" : "bg-panel text-gray-300"
+                view === "theme" ? "bg-blue text-white" : "bg-panel2 text-sub"
               }`}
             >
               题材榜
@@ -70,7 +70,7 @@ export default function App() {
             <button
               onClick={() => setView("lianban")}
               className={`px-3 py-1 text-sm ${
-                view === "lianban" ? "bg-blue-600 text-white" : "bg-panel text-gray-300"
+                view === "lianban" ? "bg-blue text-white" : "bg-panel2 text-sub"
               }`}
             >
               连板梯队
@@ -83,7 +83,7 @@ export default function App() {
                   key={t.k}
                   onClick={() => setZsType(t.k)}
                   className={`px-3 py-1 text-sm ${
-                    zsType === t.k ? "bg-blue-600 text-white" : "bg-panel text-gray-300"
+                    zsType === t.k ? "bg-blue text-white" : "bg-panel2 text-sub"
                   }`}
                 >
                   {t.label}
@@ -91,7 +91,7 @@ export default function App() {
               ))}
             </div>
           )}
-          <label className="flex items-center gap-1 text-sm text-gray-400">
+          <label className="flex items-center gap-1 text-sm text-sub">
             <input
               type="checkbox"
               checked={auto}
@@ -111,7 +111,7 @@ export default function App() {
       {view === "theme" ? (
         <main className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <section>
-            <h2 className="text-sm text-gray-400 mb-2">
+            <h2 className="text-sm text-sub mb-2">
               题材榜（{TYPES.find((t) => t.k === zsType)?.label}）
             </h2>
             <Board
@@ -138,7 +138,7 @@ export default function App() {
         />
       )}
 
-      <footer className="text-center text-xs text-gray-600 mt-8">
+      <footer className="text-center text-xs text-sub mt-8">
         数据来源：开盘啦(longhuvip)公开接口 + 腾讯行情 · 经 Cloudflare 边缘加速
       </footer>
     </div>

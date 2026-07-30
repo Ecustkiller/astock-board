@@ -1,7 +1,7 @@
 // 板块K线迷你走势图（SVG sparkline，取收盘价）
 export default function Kline({ data }: { data: { close: number }[] }) {
   if (!data || data.length < 2)
-    return <div className="text-xs text-gray-600">暂无K线</div>
+    return <div className="text-xs text-sub">暂无K线</div>
 
   const closes = data.map((d) => d.close).filter((v) => typeof v === "number")
   const min = Math.min(...closes)
@@ -17,7 +17,7 @@ export default function Kline({ data }: { data: { close: number }[] }) {
     .join(" ")
 
   const up = closes[closes.length - 1] >= closes[0]
-  const color = up ? "#ef4444" : "#22c55e"
+  const color = up ? "var(--up)" : "var(--down)"
 
   return (
     <svg width={w} height={h} className="block">

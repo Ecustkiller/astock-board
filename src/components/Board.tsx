@@ -7,8 +7,8 @@ function ChgBar({ chg }: { chg: number }) {
   const up = chg >= 0
   const mag = Math.min(Math.abs(chg) / 5, 1) * 50 // 单日 ±5% 封顶占半宽
   const style: React.CSSProperties = up
-    ? { left: "50%", width: mag + "%", background: "#ef4444" }
-    : { right: "50%", width: mag + "%", background: "#22c55e" }
+    ? { left: "50%", width: mag + "%", background: "var(--up)" }
+    : { right: "50%", width: mag + "%", background: "var(--down)" }
   return (
     <div className="relative h-1.5 bg-edge rounded overflow-hidden">
       <div className="absolute top-0 bottom-0" style={style} />
@@ -26,7 +26,7 @@ export default function Board({
   selected?: string
 }) {
   if (!data || !data.length)
-    return <div className="text-gray-500 text-sm p-4">暂无数据</div>
+    return <div className="text-sub text-sm p-4">暂无数据</div>
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
@@ -36,15 +36,15 @@ export default function Board({
           onClick={() => onSelect(it.code, it.name)}
           className={`text-left rounded-lg border p-3 transition ${
             selected === it.code
-              ? "border-blue-500 bg-panel2"
-              : "border-edge bg-panel hover:border-gray-500"
+              ? "border-blue bg-panel2"
+              : "border-edge bg-panel hover:border-sub"
           }`}
         >
           <div className="flex justify-between items-baseline">
             <span className="font-medium truncate">{it.name}</span>
             <span className={`text-sm ${chgColor(it.chg)}`}>{pct(it.chg)}</span>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs text-sub mt-1">
             强度 {it.strength} · {it.code}
           </div>
           <div className="mt-2">

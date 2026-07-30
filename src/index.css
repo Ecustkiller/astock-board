@@ -3,7 +3,31 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light dark;
+  /* 苹果风亮色（默认） */
+  --bg: #fbfbfd;
+  --panel: #ffffff;
+  --panel2: #f5f5f7;
+  --edge: #e5e5e7;
+  --ink: #1d1d1f;
+  --sub: #86868b;
+  /* 涨跌：苹果语义红/绿（A股红涨绿跌） */
+  --up: #ff3b30;
+  --down: #34c759;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 苹果风暗色，跟随系统 */
+    --bg: #000000;
+    --panel: #1c1c1e;
+    --panel2: #2c2c2e;
+    --edge: #38383a;
+    --ink: #f5f5f7;
+    --sub: #98989d;
+    --up: #ff453a;
+    --down: #30d158;
+  }
 }
 
 * {
@@ -12,11 +36,13 @@
 
 body {
   margin: 0;
-  background: #0b0e14;
-  color: #e6e8eb;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "PingFang SC", "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0.01em;
 }
 
 /* 隐藏滚动条但保留滚动 */
@@ -26,4 +52,12 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* 苹果风聚焦光圈 */
+button:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.35);
+  border-radius: 8px;
 }

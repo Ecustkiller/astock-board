@@ -29,8 +29,8 @@ function ThemeRow({ theme }: { theme: any }) {
         <div className="px-2 pb-2 space-y-1">
           {stocks.slice(0, 20).map((s: any, i: number) => (
             <div key={i} className="flex justify-between text-xs">
-              <span className="text-gray-300">
-                {s[1]} <span className="text-gray-600">{s[0]}</span>
+              <span className="text-ink">
+                {s[1]} <span className="text-sub">{s[0]}</span>
               </span>
               <span className={chgColor(quotes[s[0]]?.chg ?? 0)}>
                 {quotes[s[0]] ? pct(quotes[s[0]].chg) : "—"}
@@ -47,7 +47,7 @@ function ThemeRow({ theme }: { theme: any }) {
 export default function ZtPanel({ data }: { data: any }) {
   if (!data || !data.list)
     return (
-      <div className="text-gray-500 text-sm p-4">
+      <div className="text-sub text-sm p-4">
         暂无涨停数据（非交易时段可能为空）
       </div>
     )
@@ -61,18 +61,18 @@ export default function ZtPanel({ data }: { data: any }) {
     <div className="space-y-4">
       <div className="flex gap-4 text-sm">
         <span>
-          涨停 <b className="text-up">{nums.ZT ?? 0}</b>
+          涨停 <span className="text-up font-medium">{nums.ZT ?? 0}</span>
         </span>
         <span>
-          跌停 <b className="text-down">{nums.DT ?? 0}</b>
+          跌停 <span className="text-down font-medium">{nums.DT ?? 0}</span>
         </span>
         <span>
-          涨跌比 <b className="text-gray-300">{nums.ZBL ?? "—"}</b>
+          涨跌比 <span className="text-ink font-medium">{nums.ZBL ?? "—"}</span>
         </span>
       </div>
 
       <div>
-        <h3 className="text-sm text-gray-400 mb-2">
+        <h3 className="text-sm text-sub mb-2">
           涨停原因题材榜（点击展开个股行情）
         </h3>
         <div className="space-y-2">
