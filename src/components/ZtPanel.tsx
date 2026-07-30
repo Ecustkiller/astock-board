@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { fetchQuote, pct, chgColor } from "../api"
 
 // 单个涨停题材行：点击展开个股 + 实时行情
-function ThemeRow({ theme }: { theme: any }) {
+function ThemeRow({ theme, onPickStock }: { theme: any; onPickStock: (code: string, name: string) => void }) {
   const [open, setOpen] = useState(false)
   const [quotes, setQuotes] = useState<Record<string, any>>({})
   const stocks = theme.StockList || []
@@ -29,9 +29,13 @@ function ThemeRow({ theme }: { theme: any }) {
         <div className="px-2 pb-2 space-y-1">
           {stocks.slice(0, 20).map((s: any, i: number) => (
             <div key={i} className="flex justify-between items-center gap-2 text-xs">
-              <span className="text-ink truncate min-w-0">
+              <button
+                className="text-left truncate min-w-0 text-ink hover:text-blue transition-colors"
+                onClick={() => onPickStock(s[0], s[1])}
+                title="点击查看个股趋势分析"
+              >
                 {s[1]} <span className="text-sub">{s[0]}</span>
-              </span>
+              </button>
               <span
                 className={`tabular-nums shrink-0 ${chgColor(
                   quotes[s[0]]?.chg ?? 0
@@ -48,7 +52,7 @@ function ThemeRow({ theme }: { theme: any }) {
   )
 }
 
-export default function ZtPanel({ data }: { data: any }) {
+export default function ZtPanel({ data, onPickStock }: { data: any; onPickStock: (code: string, name: string) => void }) {
   if (!data || !data.list)
     return (
       <div className="text-sub text-sm p-4">
@@ -81,7 +85,7 @@ export default function ZtPanel({ data }: { data: any }) {
         </h3>
         <div className="space-y-2">
           {themes.slice(0, 25).map((t: any, i: number) => (
-            <ThemeRow key={i} theme={t} />
+            <ThemeRow key={i} theme={t} onPickStock={onPickStock} />
           ))}
         </div>
       </div>

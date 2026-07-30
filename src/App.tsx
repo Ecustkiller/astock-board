@@ -6,6 +6,8 @@ import LianbanPanel from "./components/LianbanPanel"
 import PlateDetail from "./components/PlateDetail"
 import IndexTicker from "./components/IndexTicker"
 import AnalysisPanel from "./components/AnalysisPanel"
+import WorldPanel from "./components/WorldPanel"
+import StockDetail from "./components/StockDetail"
 
 const TYPES = [
   { k: "7", label: "概念" },
@@ -14,7 +16,8 @@ const TYPES = [
 ]
 
 export default function App() {
-  const [view, setView] = useState<"theme" | "lianban" | "analysis">("theme")
+  const [view, setView] = useState<"theme" | "lianban" | "analysis" | "world">("theme")
+  const [stock, setStock] = useState<{ code: string; name: string } | null>(null)
   const [zsType, setZsType] = useState("7")
   const [concept, setConcept] = useState<any[]>([])
   const [zt, setZt] = useState<any>(null)
@@ -102,6 +105,14 @@ export default function App() {
               >
                 题材分析
               </button>
+              <button
+                onClick={() => setView("world")}
+                className={`px-3 py-1 text-sm ${
+                  view === "world" ? "bg-blue text-white" : "bg-panel2 text-sub"
+                }`}
+              >
+                国际行情
+              </button>
             </div>
             {view === "theme" && (
               <div className="flex rounded-lg overflow-hidden border border-edge">
@@ -178,13 +189,17 @@ export default function App() {
               />
             </section>
             <section>
-              <ZtPanel data={zt} />
+              <ZtPanel data={zt} onPickStock={(code, name) => setStock({ code, name })} />
             </section>
           </main>
         </>
       ) : view === "lianban" ? (
         <main>
-          <LianbanPanel data={zt} />
+          <LianbanPanel data={zt} onPickStock={(code, name) => setStock({ code, name })} />
+        </main>
+      ) : view === "world" ? (
+        <main>
+          <WorldPanel />
         </main>
       ) : (
         <main>
@@ -198,6 +213,10 @@ export default function App() {
           name={selected.name}
           onClose={() => setSelected(null)}
         />
+      )}
+
+      {stock && (
+        <StockDetail code={stock.code} name={stock.name} onClose={() => setStock(null)} />
       )}
 
       <footer className="text-center text-xs text-sub mt-8">

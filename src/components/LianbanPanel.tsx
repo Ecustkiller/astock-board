@@ -14,7 +14,7 @@ function parseBoard(s: any): number {
   return m3 ? parseInt(m3[0], 10) : 1
 }
 
-export default function LianbanPanel({ data }: { data: any }) {
+export default function LianbanPanel({ data, onPickStock }: { data: any; onPickStock: (code: string, name: string) => void }) {
   const [quotes, setQuotes] = useState<Record<string, any>>({})
 
   const all = data?.list ? data.list.flatMap((t: any) => t.StockList || []) : []
@@ -73,9 +73,9 @@ export default function LianbanPanel({ data }: { data: any }) {
                     return (
                       <button
                         key={i}
-                        onClick={() => navigator.clipboard?.writeText(s[0])}
+                        onClick={() => onPickStock(s[0], s[1])}
                         className="px-2 py-0.5 rounded-md bg-panel2 border border-edge text-[14px] hover:border-blue transition-colors"
-                        title={`${s[1]} ${s[0]}`}
+                        title={`${s[1]} ${s[0]} · 点击查看趋势`}
                       >
                         <span className="text-ink">{s[1]}</span>
                         {q ? (

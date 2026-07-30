@@ -66,3 +66,26 @@ export function chgColor(chg: number): string {
   if (chg == null || isNaN(chg)) return "text-sub"
   return chg >= 0 ? "text-up" : "text-down"
 }
+
+// 国际行情（Yahoo Finance，经 CF 代理批量拉取）
+export async function fetchWorld(symbols: string[]): Promise<any[]> {
+  if (!symbols.length) return []
+  const r = await fetch(`/api/world?symbols=${symbols.join(",")}`)
+  return r.json()
+}
+
+// 个股日K（东方财富，经 CF 代理）
+export async function fetchKline(code: string, market?: number): Promise<any> {
+  const r = await fetch(
+    `/api/kline?code=${encodeURIComponent(code)}${market != null ? `&market=${market}` : ""}`
+  )
+  return r.json()
+}
+
+// 从代码推市场（沪1/深0，用于东方财富 secid）
+export function marketOf(code: string): number {
+  if (/^sh/i.test(code)) return 1
+  if (/^sz/i.test(code)) return 0
+  if (/^bj/i.test(code)) return 0
+  return code.replace(/[^0-9]/g, "").startsWith("6") ? 1 : 0
+}

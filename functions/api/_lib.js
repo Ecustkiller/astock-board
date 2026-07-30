@@ -50,7 +50,7 @@ export function ttl() {
   return isTradingTime() ? 30 : 3600
 }
 
-async function cacheGet(env, key) {
+export async function cacheGet(env, key) {
   if (env && env.KPL_CACHE) {
     const v = await env.KPL_CACHE.get(key)
     return v ? JSON.parse(v) : null
@@ -58,7 +58,7 @@ async function cacheGet(env, key) {
   return null
 }
 
-async function cachePut(env, key, val, t) {
+export async function cachePut(env, key, val, t) {
   if (env && env.KPL_CACHE && val != null) {
     try {
       await env.KPL_CACHE.put(key, JSON.stringify(val), { expirationTtl: t })
