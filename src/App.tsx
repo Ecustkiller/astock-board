@@ -23,6 +23,7 @@ export default function App() {
   const [zt, setZt] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+  const [feedError, setFeedError] = useState(false)
   const [auto, setAuto] = useState(true)
   const [selected, setSelected] = useState<{ code: string; name: string } | null>(null)
   const [search, setSearch] = useState("")
@@ -32,13 +33,28 @@ export default function App() {
     setLoading(true)
     try {
       const [c, z] = await Promise.all([fetchConcept(zsType), fetchZt()])
-      setConcept(c)
-      setZt(z)
-      setLastUpdate(new Date())
-      // 题材榜加载后静默预热前 N 个题材钻取详情，点击时零延迟
-      prefetchPlates(c.map((x: any) => x.code))
+      let ok = true
+      // 题材榜：成功才覆盖，失败保留上一次结果（避免页面“卡死/不更新”）
+      if (Array.isArray(c) && c.length) {
+        setConcept(c)
+        prefetchPlates(c.map((x: any) => x.code))
+      } else if (c && (c as any).error) {
+        ok = false
+      }
+      // 涨停原因：成功才覆盖
+      if (z && !(z as any).error) setZt(z)
+      else if (z && (z as any).error) ok = false
+
+      if (ok) {
+        setFeedError(false)
+        setLastUpdate(new Date())
+      } else {
+        // 数据获取失败：保留上次结果，提示用户（30s 后自动重试）
+        setFeedError(true)
+      }
     } catch (e) {
       console.error(e)
+      setFeedError(true)
     } finally {
       setLoading(false)
     }
@@ -147,6 +163,12 @@ export default function App() {
         </div>
         <IndexTicker />
       </header>
+
+      {feedError && (
+        <div className="mb-3 rounded-lg border border-amber-300/60 bg-amber-50 dark:bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+          数据获取失败（上游可能触发风控/限流），已保留最近一次成功结果，每 30 秒自动重试。
+        </div>
+      )}
 
       {view === "theme" ? (
         <>

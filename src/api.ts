@@ -1,24 +1,40 @@
 // 前端 API 封装：全部走同源 /api（由 CF Pages Functions 代理，解决 CORS + 边缘缓存）
 
+// 安全 fetch：任何非 200 / 非 JSON 的响应都返回 { error } 对象，绝不抛错。
+// 这是修复「页面卡死/不更新」的关键：之前 r.json() 在拿到 520 的 HTML 时抛
+// SyntaxError，被上层吞掉后导致状态不刷新、页面看起来“没更新”。
+async function fetchJson(path: string): Promise<any> {
+  try {
+    const r = await fetch(path)
+    if (!r.ok) return { error: `HTTP ${r.status}` }
+    const t = await r.text()
+    try {
+      return JSON.parse(t)
+    } catch {
+      return { error: "返回非JSON(上游异常)" }
+    }
+  } catch (e) {
+    return { error: String(e).slice(0, 120) }
+  }
+}
+
 export async function fetchConcept(type = "7", topn = 60): Promise<any[]> {
-  const r = await fetch(`/api/concept?type=${type}&topn=${topn}`)
-  return r.json()
+  const d = await fetchJson(`/api/concept?type=${type}&topn=${topn}`)
+  return Array.isArray(d) ? d : d.error ? (d as any) : []
 }
 
 export async function fetchZt(): Promise<any> {
-  const r = await fetch(`/api/zt`)
-  return r.json()
+  return fetchJson(`/api/zt`)
 }
 
 export async function fetchQuote(codes: string[]): Promise<Record<string, any>> {
   if (!codes.length) return {}
-  const r = await fetch(`/api/quote?codes=${codes.join(",")}`)
-  return r.json()
+  const d = await fetchJson(`/api/quote?codes=${codes.join(",")}`)
+  return d && !d.error ? d : {}
 }
 
 export async function fetchPlate(code: string): Promise<any> {
-  const r = await fetch(`/api/plate?code=${code}`)
-  return r.json()
+  return fetchJson(`/api/plate?code=${code}`)
 }
 
 // ---- 前端内存缓存 + 预拉取：点击题材钻取时避免明显刷新停顿 ----
@@ -67,19 +83,18 @@ export function chgColor(chg: number): string {
   return chg >= 0 ? "text-up" : "text-down"
 }
 
-// 国际行情（Yahoo Finance，经 CF 代理批量拉取）
+// 国际行情（东方财富全球行情，经 CF 代理批量拉取）
 export async function fetchWorld(symbols: string[]): Promise<any[]> {
   if (!symbols.length) return []
-  const r = await fetch(`/api/world?symbols=${symbols.join(",")}`)
-  return r.json()
+  const d = await fetchJson(`/api/world?symbols=${symbols.join(",")}`)
+  return Array.isArray(d) ? d : []
 }
 
-// 个股日K（东方财富，经 CF 代理）
+// 个股日K（东方财富为主 + 新浪兜底，经 CF 代理）
 export async function fetchKline(code: string, market?: number): Promise<any> {
-  const r = await fetch(
+  return fetchJson(
     `/api/kline?code=${encodeURIComponent(code)}${market != null ? `&market=${market}` : ""}`
   )
-  return r.json()
 }
 
 // 从代码推市场（沪1/深0，用于东方财富 secid）

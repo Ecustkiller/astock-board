@@ -68,6 +68,32 @@ export async function cachePut(env, key, val, t) {
   }
 }
 
+// 安全读取响应体文本（容错：网络异常返回空串）
+export async function safeText(resp) {
+  try {
+    return await resp.text()
+  } catch {
+    return ""
+  }
+}
+
+// 安全解析 JSON：任何非 200 / 非 JSON 的响应都不会抛错，而是返回带标记的对象。
+// 这是修复「SyntaxError: Unexpected token ... 520 ... is not valid JSON」的核心：
+// 上游(开盘啦/东财/新浪等)在 CF 边缘被风控时可能返回 520 的 HTML/纯文本，
+// 直接 resp.json() 会抛错并导致整个路由崩溃、前端拿到非 JSON 进而页面卡死。
+export async function safeJson(resp) {
+  if (!resp || !resp.ok) {
+    return { __upstreamError: (resp && resp.status) || "no-response" }
+  }
+  const t = await safeText(resp)
+  try {
+    return JSON.parse(t)
+  } catch {
+    // 把前 200 字符回带，便于排查到底是什么被返回了（如 "error code: 520"）
+    return { __parseError: t.slice(0, 200) }
+  }
+}
+
 export async function proxyPost(env, host, path, body, cacheKey, ttlSec, ua = UA_KPL) {
   const cached = await cacheGet(env, cacheKey)
   if (cached) return cached
@@ -77,14 +103,23 @@ export async function proxyPost(env, host, path, body, cacheKey, ttlSec, ua = UA
     "User-Agent": ua,
     "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
   }
-  const resp = await fetch(url, {
-    method: "POST",
-    headers,
-    body: new URLSearchParams(body).toString(),
-  })
-  const data = await resp.json()
-  if (data && Object.keys(data).length) await cachePut(env, cacheKey, data, ttlSec)
-  return data
+  try {
+    const resp = await fetch(url, {
+      method: "POST",
+      headers,
+      body: new URLSearchParams(body).toString(),
+    })
+    const data = await safeJson(resp)
+    // 非 200 / 解析失败 / 空对象 -> 视为上游异常，返回结构化错误（不缓存、不抛错）
+    if (data?.__upstreamError || data?.__parseError || !data || !Object.keys(data).length) {
+      return { error: "上游返回异常(可能触发风控/限流)" }
+    }
+    await cachePut(env, cacheKey, data, ttlSec)
+    return data
+  } catch (e) {
+    // fetch 本身抛错（边缘连不上上游）也兜底，不向上抛
+    return { error: String(e).slice(0, 120) }
+  }
 }
 
 export async function proxyGet(env, host, path, params, cacheKey, ttlSec, ua = UA_KPL) {
@@ -96,10 +131,17 @@ export async function proxyGet(env, host, path, params, cacheKey, ttlSec, ua = U
     "User-Agent": ua,
     "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
   }
-  const resp = await fetch(url, { method: "GET", headers })
-  const data = await resp.json()
-  if (data && Object.keys(data).length) await cachePut(env, cacheKey, data, ttlSec)
-  return data
+  try {
+    const resp = await fetch(url, { method: "GET", headers })
+    const data = await safeJson(resp)
+    if (data?.__upstreamError || data?.__parseError || !data || !Object.keys(data).length) {
+      return { error: "上游返回异常(可能触发风控/限流)" }
+    }
+    await cachePut(env, cacheKey, data, ttlSec)
+    return data
+  } catch (e) {
+    return { error: String(e).slice(0, 120) }
+  }
 }
 
 export function json(data, extra = {}) {
