@@ -95,6 +95,8 @@ export async function onRequestGet({ request, env }) {
     UA_KPL
   )
   if (kpl && !kpl.error && Array.isArray(kpl.list) && kpl.list.length) {
+    kpl._src = "kaipanla"
+    kpl._v = "v2"
     return json(kpl)
   }
 
@@ -123,6 +125,8 @@ export async function onRequestGet({ request, env }) {
     nums: { ZT: ztCount, DT: dtCount, ZBL: zbl },
     source: "eastmoney",
     date: day,
+    _src: "eastmoney",
+    _v: "v2",
   }
   return json(out)
 }
