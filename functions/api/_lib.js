@@ -114,6 +114,11 @@ export async function proxyPost(env, host, path, body, cacheKey, ttlSec, ua = UA
     if (data?.__upstreamError || data?.__parseError || !data || !Object.keys(data).length) {
       return { error: "上游返回异常(可能触发风控/限流)" }
     }
+    // 有效 JSON 但列表为空（如开盘啦涨停榜尚未出数）-> 短缓存，便于数据源补齐后及时切回
+    if (Array.isArray(data.list) && data.list.length === 0) {
+      await cachePut(env, cacheKey, data, 60)
+      return data
+    }
     await cachePut(env, cacheKey, data, ttlSec)
     return data
   } catch (e) {
