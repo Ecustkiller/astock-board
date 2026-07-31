@@ -50,6 +50,46 @@ function parseItem(d, sym) {
   }
 }
 
+// 港股兜底：东财全球行情在 CF 边缘对 116.(港股) 经常返回空，改用腾讯 gtimg（支持 GBK）
+function parseTencentHK(text, sym) {
+  const line = text.split(";").find((l) => l.includes('"'))
+  if (!line) return null
+  const m = line.match(/="([^"]*)"/)
+  if (!m) return null
+  const f = m[1].split("~")
+  if (f.length < 38) return null
+  const price = parseFloat(f[3])
+  if (!price) return null
+  return {
+    symbol: sym,
+    name: f[1],
+    currency: "HKD",
+    price,
+    prevClose: parseFloat(f[4]),
+    chg: parseFloat(f[31]),
+    chgPct: parseFloat(f[32]),
+    high: parseFloat(f[33]),
+    low: parseFloat(f[34]),
+    open: parseFloat(f[5]),
+    volume: parseFloat(f[36]),
+    amount: parseFloat(f[37]),
+  }
+}
+
+async function tryTencentHK(sym) {
+  const code = sym.replace(/\.hk$/i, "").padStart(5, "0")
+  try {
+    const r = await fetch(`https://web.sqt.gtimg.cn/q=hk${code}`, {
+      headers: { "User-Agent": UA, Referer: "https://gu.qq.com/" },
+    })
+    const buf = await r.arrayBuffer()
+    const text = new TextDecoder("gbk").decode(buf)
+    return parseTencentHK(text, sym)
+  } catch {
+    return null
+  }
+}
+
 export async function onRequest({ request, env }) {
   const url = new URL(request.url)
   const raw = url.searchParams.get("symbols") || url.searchParams.get("symbol") || "AAPL"
@@ -57,6 +97,7 @@ export async function onRequest({ request, env }) {
 
   const out = []
   for (const sym of symbols) {
+    const isHK = /\.HK$/i.test(sym)
     const secid = toSecid(sym)
     const key = "world:" + sym.toUpperCase()
     const cached = await cacheGet(env, key)
@@ -66,6 +107,17 @@ export async function onRequest({ request, env }) {
     }
     if (!secid) {
       out.push({ symbol: sym, error: "不支持的代码" })
+      continue
+    }
+    // 港股：东财在 CF 边缘对 116. 经常为空，直接用腾讯 gtimg 兜底
+    if (isHK) {
+      const hk = await tryTencentHK(sym)
+      if (hk) {
+        await cachePut(env, key, hk, 60)
+        out.push(hk)
+      } else {
+        out.push({ symbol: sym, error: "无数据" })
+      }
       continue
     }
     try {
